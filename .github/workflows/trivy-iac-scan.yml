@@ -23,16 +23,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      -curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.64.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.64.1_Linux-64bit.deb
 
 
       - name: Run Trivy IaC scan and save output
         run: |
           trivy config . --format json --output trivy-results.json
 
-      - name: Upload Trivy Report 
-        if: always()
+      - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
         with:
           name: trivy-iac-report
           path: trivy-results.json
+
